@@ -1,0 +1,10 @@
+*~
+\#*
+*.root
+*.art
+*.log
+*.log.*
+*.pdf
+*.pyc
+*.bz2
+*.swp
