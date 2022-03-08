@@ -12,10 +12,12 @@ The code looks at the G4PhysicalVolumeStore, G4LogicalVolumeStore, G4SolidStore.
 
 This is known to work with versions of Offline v10_10_01.  To use this, cd to a clean working directory and have a clean environment.
 
+<pre>
 setup mu2e
 muse link Offline v10_10_01
 git clone https://github.com/kutschke/GeomStudy
 git clone https://github.com/Mu2e/Production
 muse build -j 8
 mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
+</pre>
 
