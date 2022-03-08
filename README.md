@@ -17,6 +17,7 @@ setup mu2e
 muse link Offline v10_10_01
 git clone https://github.com/kutschke/GeomStudy
 git clone https://github.com/Mu2e/Production
+muse setup -1
 muse build -j 8
 mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
 </pre>
