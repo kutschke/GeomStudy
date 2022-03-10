@@ -22,3 +22,31 @@ muse build -j 8
 mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
 </pre>
 
+Alternatively, to build both Offline and GeomStudy, do the following:
+<pre>
+setup mu2e
+git clone https://github.com/kutschke/GeomStudy
+git clone https://github.com/Mu2e/Production
+git clone https://github.com/Mu2e/Offline
+# optionally checkout tags of the 3 repositories
+muse setup -1
+muse build -j 8
+mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
+</pre>
+
+To add GeomStudy to an existing build of Offline, start in a clean terminal window
+and cd to the existing Muse working directory (ie the directory that contains
+Offline as a subdirectory).  Then:
+
+<pre>
+setup mu2e
+git clone https://github.com/kutschke/GeomStudy
+# optionally checkout a tag of GeomStudy
+muse setup -1
+muse build -j 8
+mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
+</pre>
+The reason that you need to start in a clean terminal window
+is that when you run muse setup, Muse looks for repositories
+to bulid. If you add a new repository after you have run muse setup,
+then Muse will not know that it's there.
