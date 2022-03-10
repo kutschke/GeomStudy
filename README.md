@@ -22,6 +22,21 @@ muse build -j 8
 mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
 </pre>
 
+If you want to build against a new prebuilt version of Offline, you can do the following
+in your existing muse working area.  Start with a clean shell.
+
+<pre>
+setup mu2e
+rm -rf link build
+muse link Offline vxx_yy_zz
+git clone https://github.com/kutschke/GeomStudy
+# you may wish to cd into Production and do git pull and/or checkout a new tag
+muse setup -1
+muse build -j 8
+mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
+</pre>
+
+
 Alternatively, to build both Offline and GeomStudy, do the following:
 <pre>
 setup mu2e
