@@ -47,7 +47,7 @@ The job produces the log file plus 4 output files:
 
 | Filename | Description |
 | --- | --- |
-| solids.txt            | Summary of all solids.  Still under development. |
+| solids.txt            | Details of each solid.  Incomplete and still under development. |
 | volumeDetails.txt     | Details of each physical volume. Some solid types are missing details. |
 | volumeSummary.txt     | Summary information, warning printout; lots of debuging and development printout. |
 | volumeHierarchy.txt   | Formatted description fo the volume hierarchy.  Complete. |
@@ -68,18 +68,17 @@ In the heirarchy file, the columns are:
 Notes on the details file
 
 1. The format of the first line for each physical volume is
-  - index number ( matches that from the hierarchy file)
+  - Index number ( matches that from the hierarchy file)
   - PhysicalVolume name
   - Copy Number
   - Material name
   - Mother, given as it's PhysicalVolume name.
 2. The world volume has a mother of "Top"; there is not volume with that name.
 
-
-
 Planned development work:
 
-1. Add the missing solid types to volumeDetails.txt.
+1. Add the missing solid types to volumeDetails.txt.  Maybe the best idea is to delgate the shape details to solids.txt?
 2. Complete the development of solids.txt.
-3. Pull the warnings out of summary.txt and give them their own file.
+3. Move the warnings out of summary.txt and put them in their own file.
 4. Control debug/development printout with a verbosity flag.
+
