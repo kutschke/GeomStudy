@@ -55,7 +55,27 @@ The job produces the log file plus 4 output files:
 
 In the heirarchy file, the columns are:
 
-| Index Number | Depth | Physical Volume Name | Copy Number | Count | Index of Parent | Number of children | Material Name | Solid Type |
+1. Index Number within this job; no physical meaning; 0-based.
+2. Depth; world volume is 1; it's children are 2, etc.
+3. Physical Volume Name
+4. Copy Number; we do not obey consistent rules for copy number.
+5. Count; number of times the corresponding logical volume was placed.
+6. Index number of parent
+7. Number of children
+8. Material Name
+9. Solid Type
+
+Notes on the details file
+
+1. The format of the first line for each physical volume is
+  - index number ( matches that from the hierarchy file)
+  - PhysicalVolume name
+  - Copy Number
+  - Material name
+  - Mother, given as it's PhysicalVolume name.
+2. The world volume has a mother of "Top"; there is not volume with that name.
+
+
 
 Planned development work:
 
