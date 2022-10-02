@@ -73,7 +73,7 @@ Notes on the details file
   - Copy Number
   - Material name
   - Mother, given as it's PhysicalVolume name.
-2. The world volume has a mother of "Top"; there is not volume with that name.
+2. The world volume has a mother of "Top"; there is no volume with that name.
 
 Comments on the geometry.
 
