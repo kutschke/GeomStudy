@@ -31,7 +31,7 @@ physics : {
 
     geomStudy : {
       module_type       : GeomStudy01
-      volumesFilename   : "debug.txt"
+      volumesFilename   : "volumeSummary.txt"
       detailsFilename   : "volumeDetails.txt"
       hierarchyFilename : "volumeHierarchy.txt"
       solidsFilename    : "solids.txt"
