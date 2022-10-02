@@ -1,6 +1,6 @@
-# Configuration file for GeomStudy01
+# Run-time configuration file for GeomStudy01
 #
-#
+
 #include "Offline/fcl/minimalMessageService.fcl"
 #include "Offline/fcl/standardProducers.fcl"
 #include "Offline/fcl/standardServices.fcl"
@@ -13,16 +13,14 @@ source : {
 }
 
 services : {
-  @table::Services.SimAndReco
-  TFileService          : { fileName : "geomStudy01.root" }
+  @table::Services.Sim
 }
-
 
 physics : {
 
   producers: {
 
-    generate : @local::generate
+    generate : @local::generate # Any generator will do.
     g4run    : {
       @table::g4run
     }
@@ -33,7 +31,7 @@ physics : {
 
     geomStudy : {
       module_type       : GeomStudy01
-      volumesFilename   : "vols.txt"
+      volumesFilename   : "debug.txt"
       detailsFilename   : "volumeDetails.txt"
       hierarchyFilename : "volumeHierarchy.txt"
       solidsFilename    : "solids.txt"
@@ -49,8 +47,9 @@ physics : {
 
 }
 
-// Initialze seeding of random engines: do not put these lines in base .fcl files for grid jobs.
+// Choose a geometry fie for the development head.
+services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_current.txt"
+
+// Initialze seeding of random engines
 services.SeedService.baseSeed         :  1
 services.SeedService.maxUniqueEngines :  20
-
-services.GeometryService.inputFile: "Offline/Mu2eG4/geom/geom_common_current.txt"
