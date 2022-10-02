@@ -75,6 +75,11 @@ Notes on the details file
   - Mother, given as it's PhysicalVolume name.
 2. The world volume has a mother of "Top"; there is not volume with that name.
 
+Comments on the geometry.
+
+1. There are 6 level 2 volumes, 5 chunks of dirt and the HallAir.  Only the HallAir has child volumes.
+2. The HallAir has a huge number of child volumes.  We need to reduce this but it's a low priority and likely requires a major redesign.
+
 Planned development work:
 
 1. Add the missing solid types to volumeDetails.txt.  Maybe the best idea is to delgate the shape details to solids.txt?
