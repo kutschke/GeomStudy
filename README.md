@@ -30,7 +30,7 @@ Running the job will take about 1:15 (m:ss) on a lightly loaded  mu2egpvm machin
 if the cache needs to be loaded.
 
 Alternatively, to build both Offline and GeomStudy, do the following:
-'''
+<pre>
 setup mu2e
 git clone https://github.com/kutschke/GeomStudy
 git clone https://github.com/Mu2e/Production
@@ -39,7 +39,7 @@ git clone https://github.com/Mu2e/Offline
 muse setup
 muse build -j N
 mu2e -c GeomStudy/fcl/geomStudy01.fcl >&  geomStudy01.log.1
-'''
+</pre>
 
 where a reasonable choice for N is 24 on mu2ebuild01 and 8 on the mu2egpvm machines.
 
