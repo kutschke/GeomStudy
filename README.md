@@ -47,8 +47,19 @@ The job produces the log file plus 4 output files:
 
 | Filename | Description |
 | --- | --- |
-| debug.txt             | Debuging and development printout, including info about duplicate names |
-| solids.txt            | Summary of all solids |
-| volumeDetails.txt     | Details of each physical volume |
-| volumeHierarchy.txt   | Formatted description fo the volume hierarchy |
+| solids.txt            | Summary of all solids.  Still under development. |
+| volumeDetails.txt     | Details of each physical volume. Some solid types are missing details. |
+| volumeSummary.txt     | Summary information, warning printout; lots of debuging and development printout. |
+| volumeHierarchy.txt   | Formatted description fo the volume hierarchy.  Complete. |
 
+
+In the heirarchy file, the columns are:
+
+| Index Number | Depth | Physical Volume Name | Copy Number | Count | Index of Parent | Number of children | Material Name | Solid Type |
+
+Planned development work:
+
+1. Add the missing solid types to volumeDetails.txt.
+2. Complete the development of solids.txt.
+3. Pull the warnings out of summary.txt and give them their own file.
+4. Control debug/development printout with a verbosity flag.
