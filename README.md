@@ -81,4 +81,4 @@ Planned development work:
 2. Complete the development of solids.txt.
 3. Move the warnings out of summary.txt and put them in their own file.
 4. Control debug/development printout with a verbosity flag.
-
+5. If we plan to put this into Offline, I would like to find better names for all of the types with "2" at the end of their names.
