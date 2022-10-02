@@ -29,14 +29,37 @@ namespace mu2e {
   class GeomStudy01 : public art::EDAnalyzer {
 
   public:
-    GeomStudy01(fhicl::ParameterSet const& pSet);
+    struct Config {
+      fhicl::Atom<std::string> summaryFilename {
+        fhicl::Name("summaryFilename"),
+          fhicl::Comment("Filename for the summary output file.")
+          };
+
+      fhicl::Atom<std::string> detailsFilename {
+        fhicl::Name("detailsFilename"),
+          fhicl::Comment("Filename for the details output file.")
+          };
+
+      fhicl::Atom<std::string> hierarchyFilename {
+        fhicl::Name("hierarchyFilename"),
+          fhicl::Comment("Filename for the hierarchy output file.")
+          };
+
+      fhicl::Atom<std::string> solidsFilename {
+        fhicl::Name("solidsFilename"),
+          fhicl::Comment("Filename for the solids output file.")
+          };
+    };
+    using Parameters = art::EDAnalyzer::Table<Config>;
+
+    GeomStudy01( Parameters const& conf );
 
     virtual void analyze(art::Event const& event ) override;
     virtual void beginRun(art::Run const & run   ) override;
 
   private:
 
-    std::string volumesFilename_;
+    std::string summaryFilename_;
     std::string detailsFilename_;
     std::string hierarchyFilename_;
     std::string solidsFilename_;
@@ -45,12 +68,12 @@ namespace mu2e {
 
 } // end namespace mu2e
 
-mu2e::GeomStudy01::GeomStudy01( fhicl::ParameterSet const& pSet):
-  EDAnalyzer(pSet),
-  volumesFilename_(pSet.get<std::string>("volumesFilename")),
-  detailsFilename_(pSet.get<std::string>("detailsFilename")),
-  hierarchyFilename_(pSet.get<std::string>("hierarchyFilename")),
-  solidsFilename_(pSet.get<std::string>("solidsFilename")){
+mu2e::GeomStudy01::GeomStudy01( Parameters const& conf ):
+  EDAnalyzer(conf),
+  summaryFilename_(conf().summaryFilename()),
+  detailsFilename_(conf().detailsFilename()),
+  hierarchyFilename_(conf().hierarchyFilename()),
+  solidsFilename_(conf().solidsFilename()){
 }
 
 void
@@ -59,11 +82,12 @@ mu2e::GeomStudy01::analyze(art::Event const& ){
 
 void
 mu2e::GeomStudy01::beginRun(art::Run const &){
-  ofstream out(volumesFilename_.c_str());
+
+  ofstream summary(summaryFilename_.c_str());
   ofstream details(detailsFilename_.c_str());
   ofstream hierarchy(hierarchyFilename_.c_str());
-  PhysicalVolumePrinter printer(out,hierarchy,details);
-  printer.beginRun(out);
+  PhysicalVolumePrinter printer(summary,hierarchy,details);
+  printer.beginRun(summary);
 
   ofstream solids(solidsFilename_.c_str());
   SolidsPrinter solidsPrinter( solids );
