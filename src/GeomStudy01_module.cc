@@ -93,4 +93,4 @@ mu2e::GeomStudy01::beginRun(art::Run const &){
   SolidsPrinter solidsPrinter( solids );
 }
 
-DEFINE_ART_MODULE(mu2e::GeomStudy01);
+DEFINE_ART_MODULE(mu2e::GeomStudy01)
