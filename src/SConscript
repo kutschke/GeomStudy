@@ -93,7 +93,7 @@ G4GRANULARLIBS = [
            'G4biasing',                           'G4FR',
            'G4OpenGL',                            'G4RayTracer',
            'G4brep',                              'G4Tree',
-           'G4VRML',                              'G4visXXX',
+           'G4VRML',
            'G4vis_management',                    'G4decay',
            'G4muons',                             'G4geomBoolean',
            'G4UIbasic',                           'G4UIGAG',
@@ -178,7 +178,6 @@ G4GLOBALIBS = [
               'libG4track',
               'libG4tracking',
               'libG4visHepRep',
-              'libG4visXXX',
               'libG4vis_management',
               'libG4zlib'
               ]
