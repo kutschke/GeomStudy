@@ -18,7 +18,8 @@ namespace mu2e {
                      G4ExtrudedSolid, G4IntersectionSolid, G4Polycone,
                      G4Polyhedra,     G4SubtractionSolid,  G4Torus,
                      G4Tubs,          G4Trd,               G4GenericTrap,
-                     G4UnionSolid,    G4DisplacedSolid,    G4EllipticalTube };
+                     G4UnionSolid,    G4DisplacedSolid,    G4EllipticalTube,
+                     G4Trap,          G4Sphere };
 
     static std::string const& typeName();
 

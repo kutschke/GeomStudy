@@ -33,6 +33,8 @@ namespace mu2e {
       nam[G4UnionSolid]        = "G4UnionSolid";
       nam[G4DisplacedSolid]    = "G4DisplacedSolid";
       nam[G4EllipticalTube]    = "G4EllipticalTube";
+      nam[G4Trap]              = "G4Trap";
+      nam[G4Sphere]            = "G4Sphere";
     }
     return nam;
   }
