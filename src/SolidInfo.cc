@@ -21,14 +21,13 @@ mu2e::SolidInfo::SolidInfo( std::string const& name,
   lSolidTypeName = std::max( lSolidTypeName, solidTypeName_.size() );
 }
 
-
 size_t mu2e::SolidInfo::lName = 0;
 size_t mu2e::SolidInfo::lSolidTypeName = 0;
 
 std::ostream& mu2e::operator<<(std::ostream& ost,
                                const mu2e::SolidInfo& vol ){
 
-  int head{1};
+  constexpr int head{1};
   ost << setw(head)                                                      << " "
       << setw(mu2e::SolidInfo::lName+2)          << vol.name()           << " "
       << setw(mu2e::SolidInfo::lSolidTypeName+2) << vol.solidTypeName()  << " ";

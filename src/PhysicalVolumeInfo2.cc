@@ -1,4 +1,5 @@
 #include "GeomStudy/inc/PhysicalVolumeInfo2.hh"
+#include "GeomStudy/inc/SolidId.hh"
 
 #include <iomanip>
 
@@ -32,7 +33,10 @@ mu2e::PhysicalVolumeInfo2::PhysicalVolumeInfo2( std::string const& name,
                                                 double             volume,
                                                 CLHEP::Hep3Vector  const& objectTranslation,
                                                 CLHEP::HepRotation const& objectRotation,
-                                                key_type                  parent)
+                                                key_type                  parent,
+                                                std::string const& solidAName,
+                                                std::string const& solidBName
+                                                )
   : name_(name)
   , depth_(depth)
   , count_(1)
@@ -46,6 +50,9 @@ mu2e::PhysicalVolumeInfo2::PhysicalVolumeInfo2( std::string const& name,
   , volume_(volume)
   , objectTranslation_(objectTranslation)
   , objectRotation_(objectRotation)
+  , solidA_(solidAName)
+  , solidB_(solidBName)
+  , isBoolean_(mu2e::isBooleanSolid(mu2e::SolidId(solidTypeName_)))
 {
   lName          = std::max( lName,          name_.size()           );
   lMaterialName  = std::max( lMaterialName,  materialName_.size()   );

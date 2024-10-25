@@ -37,6 +37,15 @@ namespace mu2e {
       nam[G4Sphere]            = "G4Sphere";
     }
     return nam;
-  }
+  } // end SolidIdDetail::names
+
+  bool isBooleanSolid( SolidId const& id ){
+    if ( id.id() == SolidId::G4IntersectionSolid ||
+         id.id() == SolidId::G4SubtractionSolid ||
+         id.id() == SolidId::G4UnionSolid ){
+      return true;
+    }
+    return false;
+  } // end isBooleanSolid
 
 }

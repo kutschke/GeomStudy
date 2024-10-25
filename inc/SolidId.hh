@@ -28,6 +28,10 @@ namespace mu2e {
   };
 
   typedef EnumToStringSparse<SolidIdDetail> SolidId;
+
+  bool isBooleanSolid( SolidId const& id );
+
 }
+
 
 #endif

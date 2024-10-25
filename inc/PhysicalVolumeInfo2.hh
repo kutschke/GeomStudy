@@ -36,12 +36,12 @@ namespace mu2e {
                          double             volume,
                          CLHEP::Hep3Vector const&  objectTranslation,
                          CLHEP::HepRotation const& objectRotation,
-                         key_type                  parent = -1);
+                         key_type                  parent = -1,
+                         std::string const& solidAName="",
+                         std::string const& solidBName=""
+                         );
 
-
-    // Accept compiler generated versions of the
-    // destructor, copy constructor and the assignment
-    // operator.
+    // Accept compiler generated rule of 5 functions
 
     // Accessors
 
@@ -59,6 +59,9 @@ namespace mu2e {
     double                       volume()            const { return volume_;            }
     CLHEP::Hep3Vector const&     objectTranslation() const { return objectTranslation_; }
     CLHEP::HepRotation const&    objectRotation()    const { return objectRotation_;    }
+    std::string const&           solidAName()        const { return solidA_;            }
+    std::string const&           solidBName()        const { return solidB_;            }
+    bool                         isBoolean()         const { return isBoolean_;         }
 
     // Modifiers
     void addChild ( key_type childIndex );
@@ -88,6 +91,9 @@ namespace mu2e {
     CLHEP::Hep3Vector      objectTranslation_;
     CLHEP::HepRotation     objectRotation_;
     std::vector<key_type>  children_;
+    std::string            solidA_;     // only valid for Boolean solids
+    std::string            solidB_;
+    bool                   isBoolean_ = false;
 
   };
 

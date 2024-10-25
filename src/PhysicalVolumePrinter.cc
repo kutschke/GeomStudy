@@ -15,6 +15,7 @@
 
 // Mu2e includes
 #include "GeomStudy/inc/PhysicalVolumePrinter.hh"
+#include "GeomStudy/inc/SolidId.hh"
 #include "GeomStudy/inc/solidParams.hh"
 #include "Offline/Mu2eG4/inc/DuplicateLogicalVolumeChecker.hh"
 
@@ -24,6 +25,7 @@
 #include "CLHEP/Vector/Rotation.h"
 
 // G4 includes
+#include "G4BooleanSolid.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -31,13 +33,46 @@
 #include "G4VSolid.hh"
 #include "G4Cons.hh"
 
-using namespace std;
+#include "CLHEP/Matrix/Matrix.h"
+#include "Math/SMatrix.h"
 
+#include <fstream>
 #include <ostream>
 #include <iomanip>
 #include <set>
 
+using namespace std;
+
 namespace {
+
+  class BooleanHelper{
+  public:
+    BooleanHelper( G4VPhysicalVolume const* pv );
+
+    string const& solidA()    const { return solidA_;    }
+    string const& solidB()    const { return solidB_;    }
+    mu2e::SolidId id()        const { return id_;        }
+    bool          isBoolean() const { return isBoolean_; }
+
+  private:
+
+    string solidA_;
+    string solidB_;
+    mu2e::SolidId id_;
+    bool isBoolean_ = false;
+  };
+
+  BooleanHelper::BooleanHelper ( G4VPhysicalVolume const* pv ):
+    id_( pv->GetLogicalVolume()->GetSolid()->GetEntityType() )
+  {
+    if ( mu2e::isBooleanSolid(id_) ){
+      G4BooleanSolid const* bs = static_cast<G4BooleanSolid const *>(pv->GetLogicalVolume()->GetSolid());
+      solidA_ = string(bs->GetConstituentSolid(0)->GetName());
+      solidB_ = string(bs->GetConstituentSolid(1)->GetName());
+      isBoolean_ = true;
+      return;
+    }
+  }
 
   // Find the physical volume identified by the name and copyNo in the collection.
   int find ( std::string const& name, unsigned copyNo, std::vector<mu2e::PhysicalVolumeInfo2>& pInfo ){
@@ -74,6 +109,14 @@ namespace {
     string const& motherName = (pv->GetMotherLogical() ) ?
       pv->GetMotherLogical()->GetName() : "Top";
 
+    // If this is boolean solid, include the names of the constituent solids.
+    string solidAName;
+    string solidBName;
+    BooleanHelper helper(pv);
+    if ( helper.isBoolean() ){
+      solidAName = helper.solidA();
+      solidBName = helper.solidB();
+    }
     pInfo.emplace_back( pv->GetName(),
                         depth_,
                         pv->GetCopyNo(),
@@ -85,7 +128,9 @@ namespace {
                         pv->GetLogicalVolume()->GetSolid()->GetCubicVolume()/CLHEP::cm3,
                         pv->GetObjectTranslation(),
                         *pv->GetObjectRotation(),
-                        motherIndex
+                        motherIndex,
+                        solidAName,
+                        solidBName
                         );
     int myIndex = pInfo.size()-1;
     if ( motherIndex > -1 ){
@@ -131,6 +176,27 @@ namespace {
     std::string name;
     int copyNo;
   };
+}
+
+namespace{
+  CLHEP::HepRotation sanitize( CLHEP::HepRotation const& m, double epsilon ){
+    constexpr size_t dim=3;
+    std::array< CLHEP::Hep3Vector,3> rows;
+    rows[0] = m.rowX();
+    rows[1] = m.rowY();
+    rows[2] = m.rowZ();
+    for ( size_t i = 0; i<dim; ++i ){
+      auto& r = rows[i];
+      for ( size_t j=0; j<dim; ++j ){
+        if ( std::abs(r[j]) < epsilon ){
+          r[j] = 0.;
+        }
+      }
+    }
+    CLHEP::HepRotation out;
+    out.setRows( rows[0], rows[1], rows[2] );
+    return out;
+  }
 }
 
 // Returns true if all physical volume names are unique.
@@ -200,6 +266,9 @@ mu2e::PhysicalVolumePrinter::PhysicalVolumePrinter( std::ostream& out,
 
   G4PhysicalVolumeStore* pstore = G4PhysicalVolumeStore::GetInstance();
   G4LogicalVolumeStore*  vstore = G4LogicalVolumeStore::GetInstance();
+
+  ofstream test("test.txt");
+  set<CLHEP::HepRotation> uniqueRotations;
 
   info2_.clear();
   info2_.reserve( pstore->size() );
@@ -307,7 +376,9 @@ mu2e::PhysicalVolumePrinter::PhysicalVolumePrinter( std::ostream& out,
     if ( vol.objectRotation().isIdentity() ){
       details << "   No Rotation" << endl;
     } else {
-      details << "   Rotation: " << vol.objectRotation();
+      auto srot = sanitize(vol.objectRotation(),1.e-15);
+      uniqueRotations.insert(srot);
+      details << "  Sanitized Rotattion: " << srot;
     }
     if ( vol.solidParams().empty() ){
       details << "   Shape: " << vol.solidTypeName()
@@ -321,6 +392,9 @@ mu2e::PhysicalVolumePrinter::PhysicalVolumePrinter( std::ostream& out,
     }
     details << "   Volume: " << vol.volume() << endl;
     details << "   Mass:   " << vol.mass()   << endl;
+    if ( vol.isBoolean() ) {
+      details << "   Solids A and B: " << vol.solidAName() << " " << vol.solidBName() << endl;
+    }
   }
 
   int sumps{0};
@@ -384,7 +458,69 @@ mu2e::PhysicalVolumePrinter::PhysicalVolumePrinter( std::ostream& out,
   }
   out << "In world: "<< inWorld << endl;
   out << "&IDENTIY:  " << &CLHEP::HepRotation::IDENTITY << endl;
+  cout << "Unique rotations: " << uniqueRotations.size() << endl;
 
+  ofstream unique("unique.txt");        // Print out all unique matrices
+  ofstream only90("only90degrees.txt"); // Print out all rotations that are pure permutations of the axes.
+  int nnn{0};
+  constexpr size_t vdim{3};  // Dimenstion of 3 vector
+  constexpr size_t mdim{9};  // Number of elmenents in a 3x3 vector
+  typedef ROOT::Math::SMatrix<double,vdim>                                       SMatrix33;
+  for ( auto const& r : uniqueRotations ){
+    array<double,mdim> tmp{ r[0][0], r[0][1], r[0][2], r[1][0], r[1][1], r[1][2], r[2][0], r[2][1], r[2][2] };
+    SMatrix33 mr(tmp.data(),mdim);
+    double det=0.;
+    bool detok = mr.Det2(det);
+    unique << "Matrix: " << nnn << " " << detok << " " <<  det << endl;
+    unique << r << endl;
+    unsigned nok=0;
+    double diagsum=0;
+    for ( size_t i=0; i<3; ++i ){
+      diagsum += r(i,i);
+      for ( size_t j=0; j<i+1; ++j ){
+        double val = std::abs(r(i,j));
+        if ( val == 0 || std::abs(val-1.0)<1.e-14 ){
+          ++nok;
+        }
+      }
+    }
+    if ( nok  == 6 ){
+      only90 << "Only 90:: " << nnn << "   Sum of diagnoal elements:  " << diagsum << " " << endl;
+      only90 << r << endl;
+    }
+    ++nnn;
+  }
+
+  // Check for duplicates.
+  vector<CLHEP::HepRotation> vunique(uniqueRotations.begin(), uniqueRotations.end());
+  constexpr double epsilon{1.e-5};
+  ofstream duplicateRotation("duplicateRotation.txt");
+  for ( size_t k=0; k<vunique.size()-1; ++k ){
+    auto const& rk = vunique[k];
+    for ( size_t l=k+1; l<vunique.size(); ++l ){
+      auto const& rl = vunique[l];
+      double maxduplicateRotation =0;
+      for ( size_t i=0; i<3; ++i ){
+        for ( size_t j=0; j<i+1; ++j ){
+          double d = rk(i,j)-rl(i,j);
+          maxduplicateRotation = std::max( maxduplicateRotation, std::abs(d) );
+        }
+      }
+      if ( maxduplicateRotation < epsilon ){
+        duplicateRotation << "Duplicate candidate: " << setw(4) << k <<  " " << setw(4) << l << " "
+              << maxduplicateRotation << "  (epsilon: " << epsilon << ")" <<endl;
+        duplicateRotation << rk << endl;
+        duplicateRotation << rl << endl;
+        for ( size_t i=0; i<3; ++i ){
+          for ( size_t j=0; j<i+1; ++j ){
+            double d = rk(i,j)-rl(i,j);
+            duplicateRotation << "    " << i << " " << j << " " << d << endl;
+          }
+        }
+
+      }
+    }
+  }
 }
 
 // Build _persistentInfo and _volumeMap from G4PhysicalVolumeStore.

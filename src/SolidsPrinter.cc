@@ -52,6 +52,10 @@ namespace {
   }
 
 
+  // G4 allows Polycones to have coincident z planes.
+  // However REve fails if it encounters a Polycone with concident z planes.
+  // This code checks for the eixtenc
+
   void pConeCheckz ( std::vector<double> const&  p, string const& name, ostream& out){
     int check = (p.size()-2)%3;
     out << "Check: " << check << endl;
@@ -92,7 +96,9 @@ mu2e::SolidsPrinter::SolidsPrinter( std::ostream& out ){
 
   G4SolidStore* sstore = G4SolidStore::GetInstance();
 
-  out << "Physical volume store size: " << sstore->size() << endl;
+  out << "Solid store size: " << sstore->size() << endl;
+
+  constexpr bool doPolyconeCheck{false};
 
   map<string,int> counts;
 
@@ -107,10 +113,9 @@ mu2e::SolidsPrinter::SolidsPrinter( std::ostream& out ){
         << setw(5) << ++n << " "
         << solid->GetName() << " "
         << solid->GetEntityType() << " "
-        << type
         << endl;
 
-    if ( type == SolidId::G4Polycone ){
+    if ( type == SolidId::G4Polycone && doPolyconeCheck ){
       std::vector<double> pars = solidParams(solid);
       out << "  Polycone: ";
       for ( auto p : pars){

@@ -6,8 +6,10 @@
 #include "GeomStudy/inc/solidParams.hh"
 #include "GeomStudy/inc/SolidId.hh"
 
+#include "G4BooleanSolid.hh"
 #include "G4Box.hh"
 #include "G4Cons.hh"
+#include "G4ExtrudedSolid.hh"
 #include "G4Polycone.hh"
 #include "G4Torus.hh"
 #include "G4Tubs.hh"
@@ -77,7 +79,72 @@ namespace {
     }
   }
 
-}
+  void doG4ExtrudedSolid( G4VSolid const* vsolid,
+                          std::vector<double>& par ){
+    G4ExtrudedSolid const* exts = static_cast<G4ExtrudedSolid const *>(vsolid);
+    constexpr int sizeDouble  = sizeof(double);
+    const int nVerts = exts->GetNofVertices();
+    const int nZsecs = exts->GetNofZSections();
+
+    const int nBytes = nVerts*sizeof(G4TwoVector) + nZsecs*sizeof(G4ExtrudedSolid::ZSection);
+    const int check  = nBytes%sizeDouble;
+    const int npars  = 2 + nBytes/sizeDouble;
+
+    if ( check != 0 ){
+      std::cout << "Fubar: " << nBytes << std::endl;
+    }
+
+    par.reserve(npars);
+    par.emplace_back(nVerts);
+    auto const verts = exts->GetPolygon();
+    for ( auto const& v : verts ){
+      par.emplace_back(v.x());
+      par.emplace_back(v.y());
+    }
+    par.emplace_back(nZsecs);
+    auto const zsecs = exts->GetZSections();
+    for ( auto const& zs : zsecs ){
+      par.emplace_back(zs.fZ);
+      par.emplace_back(zs.fOffset.x());
+      par.emplace_back(zs.fOffset.y());
+      par.emplace_back(zs.fScale);
+    }
+
+  } // end doG4ExtrudedSolid
+
+  void doG4BooleanSolid( G4VSolid const* vsolid,
+                          std::vector<double>& par ){
+
+    G4BooleanSolid const* bs = static_cast<G4BooleanSolid const *>(vsolid);
+    //auto s0 = bs->GetConstituentSolid(0);
+    auto s1  = bs->GetConstituentSolid(1);
+    auto s1d = s1->GetDisplacedSolidPtr();
+
+    // Fixme: clean up all commented out code in this function after verifiying that the code
+    // for physical volumes is correct.
+    /*
+
+    std::cout << "doing boolean: "
+              << bs->GetName() << " "
+              << s0 << " "
+              << s1 << "   | "
+              << s1d
+              << std::endl;
+    std::cout << "              "
+              << bs->GetConstituentSolid(0)->GetName() << " "
+              << bs->GetConstituentSolid(1)->GetName()
+              << std::endl;
+    */
+    if ( s1d != nullptr ){
+      auto rot   = s1d->GetObjectRotation();
+      auto trans = s1d->GetObjectTranslation();
+      //std::cout <<  "              " << trans << std::endl;
+      //std::cout <<  "              " << rot << std::endl;
+
+    }
+  } // end doG4BooleanSolid
+
+} // end anonymous namespace
 
 std::vector<double> mu2e::solidParams( G4VSolid const* vsolid){
 
@@ -102,8 +169,20 @@ std::vector<double> mu2e::solidParams( G4VSolid const* vsolid){
   case SolidId::G4Polycone:
     doG4Polycone(vsolid,pars);
     break;
+  case SolidId::G4ExtrudedSolid:
+    doG4ExtrudedSolid(vsolid,pars);
+    break;
+  case SolidId::G4SubtractionSolid:
+    doG4BooleanSolid(vsolid, pars);
+    break;
+  case SolidId::G4IntersectionSolid:
+    doG4BooleanSolid(vsolid, pars);
+    break;
+  case SolidId::G4UnionSolid:
+    doG4BooleanSolid(vsolid, pars);
+    break;
   default:
-    //std::cout << "Skipped type: " << vsolid->GetEntityType() << " " << type.name() << " " << type.id() << std::endl;
+    std::cout << "Skipped type: " << vsolid->GetEntityType() << " " << type.name() << " " << type.id() << std::endl;
     break;
   }
 
